@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Práctica: Modelado de Amenazas - Threat Modeling Tool</title>
+    <style>
+        body {
+            font-family: 'Georgia', serif;
+            line-height: 1.5;
+            margin: 40px auto;
+            max-width: 1000px;
+            color: #333;
+            padding: 0 20px;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        .header-info {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-left: 5px solid #2c3e50;
+            margin-bottom: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            margin-bottom: 40px;
+            font-size: 0.95em;
+        }
+        th, td {
+            border: 1px solid #bdc3c7;
+            padding: 12px;
+            text-align: left;
+            vertical-align: top;
+        }
+        th {
+            background-color: #ecf0f1;
+            color: #2c3e50;
+        }
+        .stride-category {
+            background-color: #34495e;
+            color: white;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            letter-spacing: 1px;
+        }
+        .dread-score {
+            text-align: center;
+            font-weight: bold;
+        }
+        .total-score {
+            text-align: center;
+            font-weight: bold;
+            background-color: #fdfae6;
+        }
+        .image-placeholder {
+            border: 2px dashed #bdc3c7;
+            padding: 40px;
+            text-align: center;
+            color: #7f8c8d;
+            background-color: #fdfdfd;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-info">
+        <h1>Práctica: Modelado de Amenazas (Threat Modeling Tool)</h1>
+        <p><strong>Alumno:</strong> Luis Enrique De Santiago Colin</p>
+        <p><strong>Asignatura:</strong> Seguridad en el Desarrollo de Aplicaciones</p>
+    </div>
+
+    <h2>1. Modelado de la Aplicación</h2>
+    <p>El presente informe detalla el análisis de seguridad de una aplicación web basada en una arquitectura de tres capas para un negocio de pago electrónico de una librería. El sistema está compuesto por un navegador cliente, un servidor web que procesa la lógica de negocio, y un servidor de bases de datos que aloja clientes, cuentas y publicaciones.</p>
+    
+    <div class="image-placeholder">
+        <img src="tu_imagen_dfd.png" alt="[Imagen del modelo DFD de la aplicación WEB]" style="max-width: 100%; height: auto;">
+    </div>
+
+    <h2>2. Calificación DREAD y Asignación de Salvaguardas</h2>
+    <p>A continuación, se documentan 5 amenazas por cada categoría del modelo STRIDE, evaluadas mediante la metodología DREAD (Damage, Reproducibility, Exploitability, Affected users, Discoverability) en una escala del 1 al 10.</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Amenaza (STRIDE)</th>
+                <th title="Damage" class="dread-score">D</th>
+                <th title="Reproducibility" class="dread-score">R</th>
+                <th title="Exploitability" class="dread-score">E</th>
+                <th title="Affected Users" class="dread-score">A</th>
+                <th title="Discoverability" class="dread-score">D</th>
+                <th class="total-score">Total</th>
+                <th>Descripción de la Salvaguarda (Mínimo 4 líneas)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td colspan="8" class="stride-category">S - Spoofing Identity (Suplantación de Identidad)</td>
+            </tr>
+            <tr>
+                <td><strong>S1:</strong> Robo de token de sesión en la librería digital.</td>
+                <td class="dread-score">8</td><td class="dread-score">7</td><td class="dread-score">6</td><td class="dread-score">8</td><td class="dread-score">7</td><td class="total-score">36</td>
+                <td>Es imperativo implementar la transmisión de tokens de sesión de los clientes exclusivamente a través de canales seguros utilizando TLS 1.2 o superior. Además, los identificadores de sesión deben regenerarse automáticamente tras una autenticación exitosa. Se debe configurar el atributo HttpOnly y Secure en las cookies para prevenir su acceso mediante scripts del lado del cliente y asegurar un tiempo de expiración corto por inactividad.</td>
+            </tr>
+            <tr>
+                <td><strong>S2:</strong> Ataque de fuerza bruta al login de clientes.</td>
+                <td class="dread-score">7</td><td class="dread-score">9</td><td class="dread-score">8</td><td class="dread-score">9</td><td class="dread-score">9</td><td class="total-score">42</td>
+                <td>Para mitigar los ataques de fuerza bruta, se debe integrar un mecanismo robusto de bloqueo de cuentas tras un número predefinido de intentos fallidos (ej. 5 intentos). Esto debe complementarse con la implementación de un sistema CAPTCHA o reCAPTCHA en el formulario de inicio de sesión. Adicionalmente, se recomienda establecer políticas de contraseñas fuertes que exijan longitud mínima, caracteres especiales y monitoreo de IPs sospechosas.</td>
+            </tr>
+            <tr>
+                <td><strong>S3:</strong> Falsificación de IP del servidor de base de datos.</td>
+                <td class="dread-score">9</td><td class="dread-score">4</td><td class="dread-score">3</td><td class="dread-score">10</td><td class="dread-score">4</td><td class="total-score">30</td>
+                <td>Se requiere segmentar la red utilizando firewalls internos o VLANs estrictas para que el servidor web solo acepte conexiones desde IPs explícitamente autorizadas y mediante autenticación mutua (mTLS). Las credenciales de conexión a la base de datos deben rotarse periódicamente y almacenarse en un gestor de secretos, no en código plano. Finalmente, se deben monitorear las anomalías de red en la subred de backend.</td>
+            </tr>
+            <tr>
+                <td><strong>S4:</strong> Ataque CSRF en la pasarela de compras.</td>
+                <td class="dread-score">8</td><td class="dread-score">7</td><td class="dread-score">7</td><td class="dread-score">8</td><td class="dread-score">6</td><td class="total-score">36</td>
+                <td>Es necesario integrar tokens Anti-CSRF únicos, impredecibles y vinculados a la sesión del usuario en todos los formularios de cambio de estado (como la compra de libros digitales). El framework de la aplicación web debe validar automáticamente este token en cada petición POST/PUT antes de procesar la lógica de negocio. También se debe configurar el atributo SameSite en las cookies de sesión para restringir su envío.</td>
+            </tr>
+            <tr>
+                <td><strong>S5:</strong> Reutilización de credenciales (Credential Stuffing).</td>
+                <td class="dread-score">7</td><td class="dread-score">8</td><td class="dread-score">9</td><td class="dread-score">8</td><td class="dread-score">8</td><td class="total-score">40</td>
+                <td>Para contrarrestar esta amenaza, el sistema debe ofrecer e incentivar fuertemente la Autenticación Multifactor (MFA) para todas las cuentas de usuario. Además, se debe integrar un servicio de inteligencia de amenazas en el proceso de inicio de sesión que verifique los hashes de las contraseñas ingresadas contra bases de datos de credenciales filtradas conocidas, forzando un restablecimiento si hay coincidencias.</td>
+            </tr>
+
+            <tr>
+                <td colspan="8" class="stride-category">T - Tampering with Data (Manipulación de Datos)</td>
+            </tr>
+            <tr>
+                <td><strong>T1:</strong> Inyección SQL al modificar precios.</td>
+                <td class="dread-score">10</td><td class="dread-score">8</td><td class="dread-score">7</td><td class="dread-score">10</td><td class="dread-score">7</td><td class="total-score">42</td>
+                <td>La mitigación principal contra la inyección de código es la utilización estricta de consultas parametrizadas (Prepared Statements) o un ORM en toda la capa de acceso a datos. Bajo ninguna circunstancia se deben concatenar cadenas de texto enviadas por el usuario directamente en las sentencias SQL. Adicionalmente, se debe aplicar el principio de menor privilegio a la cuenta de servicio de la base de datos.</td>
+            </tr>
+            <tr>
+                <td><strong>T2:</strong> Manipulación de parámetros ocultos.</td>
+                <td class="dread-score">9</td><td class="dread-score">8</td><td class="dread-score">8</td><td class="dread-score">8</td><td class="dread-score">8</td><td class="total-score">41</td>
+                <td>El servidor web jamás debe confiar en la información de precios o descuentos enviada desde el cliente o mediante campos ocultos en el navegador. Toda validación crítica de negocio, cálculo de totales y aplicación de promociones debe recalcularse y verificarse estrictamente en la capa del backend antes de procesar cualquier cobro electrónico. Firmas HMAC pueden usarse para estados de cliente.</td>
+            </tr>
+            <tr>
+                <td><strong>T3:</strong> Ataque Man-in-the-Middle alterando descargas.</td>
+                <td class="dread-score">8</td><td class="dread-score">5</td><td class="dread-score">5</td><td class="dread-score">6</td><td class="dread-score">5</td><td class="total-score">29</td>
+                <td>Se debe aplicar cifrado de extremo a extremo utilizando certificados SSL/TLS válidos en todo el tráfico de la aplicación, forzando la redirección de HTTP a HTTPS. Es vital implementar cabeceras HSTS para evitar ataques de degradación de protocolo. La integridad de los archivos de libros descargables debe garantizarse entregando hashes (SHA-256) para que el cliente valide el contenido final.</td>
+            </tr>
+            <tr>
+                <td><strong>T4:</strong> Modificación no autorizada de logs.</td>
+                <td class="dread-score">8</td><td class="dread-score">4</td><td class="dread-score">5</td><td class="dread-score">10</td><td class="dread-score">3</td><td class="total-score">30</td>
+                <td>Los registros de auditoría y logs del servidor web y de la base de datos deben enviarse en tiempo real a un servidor centralizado (SIEM) al que los administradores web no tengan permisos de escritura ni borrado. Se deben implementar mecanismos de control de integridad de archivos (FIM) para detectar alteraciones locales, asegurando evidencia inmutable ante incidentes.</td>
+            </tr>
+            <tr>
+                <td><strong>T5:</strong> XSS Reflejado en caja de búsqueda.</td>
+                <td class="dread-score">7</td><td class="dread-score">8</td><td class="dread-score">8</td><td class="dread-score">8</td><td class="dread-score">7</td><td class="total-score">38</td>
+                <td>Todas las entradas provenientes de los clientes deben ser estrictamente validadas y sanitizadas antes de procesarse. Es fundamental aplicar una codificación de salida (Output Encoding) contextual apropiada para HTML, JavaScript y atributos CSS antes de renderizar cualquier dato en el navegador. La implementación de una Política de Seguridad de Contenido (CSP) actuará como capa adicional.</td>
+            </tr>
+
+            <tr>
+                <td colspan="8" class="stride-category">R - Repudiation (Repudio)</td>
+            </tr>
+            <tr>
+                <td><strong>R1:</strong> Usuario niega compra digital.</td>
+                <td class="dread-score">6</td><td class="dread-score">7</td><td class="dread-score">8</td><td class="dread-score">4</td><td class="dread-score">7</td><td class="total-score">32</td>
+                <td>Es necesario establecer un sistema de registro transaccional no repudiable para el negocio electrónico. Cada transacción debe generar un recibo digital único vinculado criptográficamente a la sesión, la marca de tiempo (NTP) y la dirección IP. Estos comprobantes deben enviarse por correo como respaldo y almacenarse de forma inmutable en la base de datos.</td>
+            </tr>
+            <tr>
+                <td><strong>R2:</strong> Administrador elimina catálogo sin rastro.</td>
+                <td class="dread-score">8</td><td class="dread-score">5</td><td class="dread-score">6</td><td class="dread-score">10</td><td class="dread-score">4</td><td class="total-score">33</td>
+                <td>Se debe implementar un registro de auditoría exhaustivo y obligatorio para todas las acciones privilegiadas (CRUD). Estos registros deben incluir el identificador del administrador, la acción exacta realizada, los valores anteriores y nuevos, y la estampa de tiempo. El acceso a estos logs debe estar restringido exclusivamente al personal de seguridad y auditoría.</td>
+            </tr>
+            <tr>
+                <td><strong>R3:</strong> Alteración de perfil sin confirmación.</td>
+                <td class="dread-score">5</td><td class="dread-score">8</td><td class="dread-score">8</td><td class="dread-score">5</td><td class="dread-score">6</td><td class="total-score">32</td>
+                <td>Cualquier modificación en los datos sensibles del perfil del cliente (correos, métodos de pago o direcciones) debe requerir una re-autenticación por parte del usuario. Además, el sistema debe disparar notificaciones automáticas por correo electrónico o SMS alertando al titular sobre los cambios realizados, permitiendo un mecanismo rápido de reporte en caso de fraude.</td>
+            </tr>
+            <tr>
+                <td><strong>R4:</strong> Intervención manual en Base de Datos.</td>
+                <td class="dread-score">9</td><td class="dread-score">3</td><td class="dread-score">4</td><td class="dread-score">10</td><td class="dread-score">2</td><td class="total-score">28</td>
+                <td>El acceso administrativo directo al servidor de bases de datos debe estar fuertemente restringido por red (solo VPN o Bastion Host) y protegido por MFA. Todas las consultas ejecutadas por los DBAs deben registrarse y auditarse. Es imperativo separar entornos de desarrollo y producción, impidiendo que desarrolladores tengan acceso de escritura a datos reales.</td>
+            </tr>
+            <tr>
+                <td><strong>R5:</strong> Fallo en registro de intentos de acceso.</td>
+                <td class="dread-score">7</td><td class="dread-score">9</td><td class="dread-score">9</td><td class="dread-score">8</td><td class="dread-score">8</td><td class="total-score">41</td>
+                <td>El módulo de autenticación debe estar programado para registrar de manera estándar todos los eventos, tanto exitosos como fallidos. El registro debe capturar metadatos esenciales sin revelar contraseñas. Estos logs permitirán la detección temprana de ataques de fuerza bruta mediante herramientas de monitoreo, garantizando el seguimiento forense.</td>
+            </tr>
+
+            <tr>
+                <td colspan="8" class="stride-category">I - Information Disclosure (Revelación de Información)</td>
+            </tr>
+            <tr>
+                <td><strong>I1:</strong> Exposición de tarjetas de crédito.</td>
+                <td class="dread-score">10</td><td class="dread-score">4</td><td class="dread-score">5</td><td class="dread-score">10</td><td class="dread-score">5</td><td class="total-score">34</td>
+                <td>La aplicación no debe almacenar los datos completos de las tarjetas (PAN, CVV) sin certificación PCI-DSS. En su lugar, se debe utilizar tokenización mediante una pasarela de terceros. Si el almacenamiento es vital, se deben aplicar algoritmos de cifrado simétrico fuertes (AES-256) a nivel de columna, gestionando las claves en un HSM.</td>
+            </tr>
+            <tr>
+                <td><strong>I2:</strong> Mensajes de error detallados (Stack Traces).</td>
+                <td class="dread-score">6</td><td class="dread-score">9</td><td class="dread-score">9</td><td class="dread-score">10</td><td class="dread-score">9</td><td class="total-score">43</td>
+                <td>El servidor web debe deshabilitar los errores de depuración en producción. La aplicación debe capturar las excepciones globales y mostrar a los usuarios únicamente páginas de error genéricas y amigables. Los detalles técnicos, como la estructura de directorios o sentencias SQL, solo deben guardarse en logs internos seguros.</td>
+            </tr>
+            <tr>
+                <td><strong>I3:</strong> IDOR al visualizar facturas.</td>
+                <td class="dread-score">8</td><td class="dread-score">7</td><td class="dread-score">8</td><td class="dread-score">9</td><td class="dread-score">7</td><td class="total-score">39</td>
+                <td>Para prevenir las Referencias Directas a Objetos Inseguras (IDOR), la aplicación no debe basar el acceso en parámetros predecibles en las URLs. Cada solicitud de recurso sensible debe incluir una validación estricta de control de acceso en el backend, comprobando permisos del usuario autenticado. El uso de UUIDs es altamente recomendado.</td>
+            </tr>
+            <tr>
+                <td><strong>I4:</strong> Listado de directorios habilitado.</td>
+                <td class="dread-score">5</td><td class="dread-score">9</td><td class="dread-score">10</td><td class="dread-score">10</td><td class="dread-score">10</td><td class="total-score">44</td>
+                <td>La configuración del software del servidor web (Apache, Nginx, IIS) debe auditarse para asegurar que la característica de "Listado de Directorios" esté deshabilitada globalmente. Se deben establecer permisos de sistema de archivos restrictivos para evitar que el navegador solicite scripts de backup o configuración.</td>
+            </tr>
+            <tr>
+                <td><strong>I5:</strong> Fuga de información por cabeceras HTTP.</td>
+                <td class="dread-score">4</td><td class="dread-score">10</td><td class="dread-score">10</td><td class="dread-score">10</td><td class="dread-score">10</td><td class="total-score">44</td>
+                <td>Es necesario configurar el servidor web para omitir cabeceras HTTP que revelen información tecnológica, como X-Powered-By o Server con versiones detalladas. Se deben añadir cabeceras estrictas como Cache-Control: no-store en páginas con información confidencial, impidiendo que el navegador o proxies almacenen copias en caché.</td>
+            </tr>
+
+            <tr>
+                <td colspan="8" class="stride-category">D - Denial of Service (Denegación de Servicio)</td>
+            </tr>
+            <tr>
+                <td><strong>D1:</strong> Agotamiento por consultas pesadas.</td>
+                <td class="dread-score">7</td><td class="dread-score">8</td><td class="dread-score">8</td><td class="dread-score">10</td><td class="dread-score">7</td><td class="total-score">40</td>
+                <td>Para proteger el servidor de base de datos, las consultas de búsqueda deben estar optimizadas, usar índices adecuados y limitar forzosamente el número de resultados (paginación estricta). Se debe establecer un "timeout" máximo de ejecución en el servidor web para abortar cualquier consulta que exceda un tiempo prudencial.</td>
+            </tr>
+            <tr>
+                <td><strong>D2:</strong> Ataque HTTP Flood.</td>
+                <td class="dread-score">8</td><td class="dread-score">7</td><td class="dread-score">8</td><td class="dread-score">10</td><td class="dread-score">8</td><td class="total-score">41</td>
+                <td>Implementar políticas de limitación de tasa (Rate Limiting) a nivel del servidor web o balanceador de carga para restringir peticiones por IP en un intervalo de tiempo. Situar la aplicación detrás de un servicio de mitigación DDoS basado en la nube y utilizar un WAF para descartar patrones maliciosos en tiempo real.</td>
+            </tr>
+            <tr>
+                <td><strong>D3:</strong> Bloqueo masivo de cuentas legítimas.</td>
+                <td class="dread-score">6</td><td class="dread-score">9</td><td class="dread-score">9</td><td class="dread-score">5</td><td class="dread-score">8</td><td class="total-score">37</td>
+                <td>Si bien el bloqueo previene fuerza bruta, puede usarse para un DoS. La salvaguarda consiste en implementar bloqueos progresivos y temporales (ej. 5 min, luego 30 min) en lugar de bloqueos absolutos. El sistema no debe notificar al atacante si la cuenta existe, y el desbloqueo debe gestionarse por el correo del cliente.</td>
+            </tr>
+            <tr>
+                <td><strong>D4:</strong> Llenado de disco por subida masiva de logs.</td>
+                <td class="dread-score">7</td><td class="dread-score">6</td><td class="dread-score">7</td><td class="dread-score">10</td><td class="dread-score">5</td><td class="total-score">35</td>
+                <td>Se deben implementar políticas estrictas de rotación, compresión y archivado de logs en los servidores web y de base de datos para evitar agotamiento de espacio (logrotate). Configurar alertas de monitoreo que notifiquen a operaciones TI cuando el almacenamiento alcance umbrales críticos (ej. 80%).</td>
+            </tr>
+            <tr>
+                <td><strong>D5:</strong> Agotamiento de la piscina de conexiones.</td>
+                <td class="dread-score">8</td><td class="dread-score">7</td><td class="dread-score">7</td><td class="dread-score">10</td><td class="dread-score">6</td><td class="total-score">38</td>
+                <td>La aplicación web debe asegurar que toda conexión abierta a la base de datos se cierre o devuelva al pool inmediatamente después de su uso (usando bloques try-finally). El gestor del pool debe configurarse con un tamaño máximo ajustado a las capacidades físicas del servidor, descartando conexiones inactivas automáticamente.</td>
+            </tr>
+
+            <tr>
+                <td colspan="8" class="stride-category">E - Elevation of Privilege (Elevación de Privilegios)</td>
+            </tr>
+            <tr>
+                <td><strong>E1:</strong> Navegación forzada al panel admin.</td>
+                <td class="dread-score">9</td><td class="dread-score">8</td><td class="dread-score">9</td><td class="dread-score">10</td><td class="dread-score">8</td><td class="total-score">44</td>
+                <td>El control de acceso debe validarse en el backend para cada petición de forma individual. Cualquier ruta que gestione funciones administrativas debe verificar criptográficamente el rol del token de sesión del usuario; si no es "Administrador", la petición debe ser rechazada inmediatamente con un error 403 (Forbidden).</td>
+            </tr>
+            <tr>
+                <td><strong>E2:</strong> Manipulación de parámetros de rol.</td>
+                <td class="dread-score">10</td><td class="dread-score">7</td><td class="dread-score">8</td><td class="dread-score">10</td><td class="dread-score">7</td><td class="total-score">42</td>
+                <td>Durante el registro o actualización de perfiles, el servidor web debe utilizar listas blancas (Allow-lists) para procesar únicamente campos permitidos. El framework debe configurarse para prevenir la Asignación Masiva (Mass Assignment), evitando que un atacante inyecte parámetros adicionales como `role=admin`.</td>
+            </tr>
+            <tr>
+                <td><strong>E3:</strong> Ejecución de código por permisos débiles.</td>
+                <td class="dread-score">10</td><td class="dread-score">5</td><td class="dread-score">6</td><td class="dread-score">10</td><td class="dread-score">6</td><td class="total-score">37</td>
+                <td>Los procesos del servidor web deben ejecutarse bajo el principio de menor privilegio. Los directorios de la aplicación web deben tener permisos estrictos que impidan al proceso modificar los scripts fuente de la aplicación o escribir ejecutables en directorios de almacenamiento, restringiendo las subidas.</td>
+            </tr>
+            <tr>
+                <td><strong>E4:</strong> Base de datos ejecutándose como root.</td>
+                <td class="dread-score">10</td><td class="dread-score">4</td><td class="dread-score">5</td><td class="dread-score">10</td><td class="dread-score">5</td><td class="total-score">34</td>
+                <td>El servicio de la base de datos nunca debe ejecutarse utilizando la cuenta root del sistema operativo. Se debe crear una cuenta dedicada. Dentro de la BD, la aplicación web debe conectarse con un usuario que posea permisos limitados únicamente a operaciones DML (Select, Insert, Update), bloqueando operaciones DDL.</td>
+            </tr>
+            <tr>
+                <td><strong>E5:</strong> Vulnerabilidades de dependencias.</td>
+                <td class="dread-score">9</td><td class="dread-score">6</td><td class="dread-score">8</td><td class="dread-score">10</td><td class="dread-score">8</td><td class="total-score">41</td>
+                <td>Es crucial establecer un proceso continuo de gestión de parches para todos los componentes de la arquitectura. Se debe utilizar análisis de composición de software (SCA) para identificar dependencias obsoletas con CVEs conocidos que permitieran comprometer el servidor web y escalar privilegios dentro de la red corporativa.</td>
+            </tr>
+        </tbody>
+    </table>
+
+</body>
+</html>
